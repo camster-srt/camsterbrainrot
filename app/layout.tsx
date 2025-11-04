@@ -1,7 +1,7 @@
 'use client'
 
 import './globals.css'
-import { ProductsProvider } from './context/ProductsContext'
+import { ProductsProvider } from './context/ProductsContext.tsx'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
