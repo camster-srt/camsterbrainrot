@@ -19,15 +19,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <a href="/admin" className="text-gray-600 hover:text-gray-900">Admin</a>
               </div>
             </nav>
+
+            <main className="max-w-7xl mx-auto p-8">
+              {children}
+            </main>
+
+            <footer className="bg-white shadow p-4 mt-12 text-center text-gray-500">
+              © 2025 CamsterBrainrot. All rights reserved.
+            </footer>
           </header>
-
-          <main className="max-w-7xl mx-auto p-8">
-            {children}
-          </main>
-
-          <footer className="bg-white shadow p-4 mt-12 text-center text-gray-500">
-            © 2025 CamsterBrainrot. All rights reserved.
-          </footer>
         </ProductsProvider>
       </body>
     </html>
