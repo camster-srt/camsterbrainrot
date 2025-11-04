@@ -1,57 +1,62 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { db } from './firebaseConfig'; // <- your file path
+import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
 
 interface Product {
-  id: number
-  name: string
-  trait: string
-  price: number
-  stock: number
-  image: string
+  id?: string;
+  name: string;
+  trait: string;
+  price: number;
+  stock: number;
+  image: string;
 }
 
-interface ProductsContextProps {
-  products: Product[]
-  addProduct: (product: Product) => void
-  deleteProduct: (id: number) => void
+interface ProductsContextType {
+  products: Product[];
+  addProduct: (p: Product) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
 }
 
-const ProductsContext = createContext<ProductsContextProps | undefined>(undefined)
+const ProductsContext = createContext<ProductsContextType>({
+  products: [],
+  addProduct: async () => {},
+  deleteProduct: async () => {}
+});
 
 export const ProductsProvider = ({ children }: { children: ReactNode }) => {
-  const [products, setProducts] = useState<Product[]>([])
+  const [products, setProducts] = useState<Product[]>([]);
 
-  // Fetch products from server
+  const productsCollection = collection(db, "products");
+
+  // Fetch products from Firestore
   const fetchProducts = async () => {
-    const res = await fetch('/api/products/get')
-    const data = await res.json()
-    setProducts(data)
-  }
+    const snapshot = await getDocs(productsCollection);
+    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+    setProducts(data);
+  };
 
   useEffect(() => {
-    fetchProducts()
-  }, [])
+    fetchProducts();
+  }, []);
 
   const addProduct = async (product: Product) => {
-    await fetch('/api/products/add', { method: 'POST', body: JSON.stringify(product) })
-    fetchProducts()
-  }
+    const docRef = await addDoc(productsCollection, product);
+    setProducts(prev => [...prev, { ...product, id: docRef.id }]);
+  };
 
-  const deleteProduct = async (id: number) => {
-    await fetch('/api/products/delete', { method: 'POST', body: JSON.stringify({ id }) })
-    fetchProducts()
-  }
+  const deleteProduct = async (id: string) => {
+    if (!id) return;
+    await deleteDoc(doc(db, "products", id));
+    setProducts(prev => prev.filter(p => p.id !== id));
+  };
 
   return (
     <ProductsContext.Provider value={{ products, addProduct, deleteProduct }}>
       {children}
     </ProductsContext.Provider>
-  )
-}
+  );
+};
 
-export const useProducts = () => {
-  const context = useContext(ProductsContext)
-  if (!context) throw new Error('useProducts must be used within ProductsProvider')
-  return context
-}
+export const useProducts = () => useContext(ProductsContext);
