@@ -1,7 +1,10 @@
-'use client'
-
 import './globals.css'
 import { ProductsProvider } from './context/ProductsContext'
+
+export const metadata = {
+  title: 'CamsterBrainrot',
+  description: 'Official Brainrot Store',
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
