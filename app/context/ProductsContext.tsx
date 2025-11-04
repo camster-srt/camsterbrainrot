@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { db } from './firebaseConfig'; // <- your file path
+import { db } from '../firebaseConfig';
 import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
 
 interface Product {
