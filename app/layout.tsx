@@ -1,10 +1,10 @@
-import './globals.css'
-import { ProductsProvider } from './context/ProductsContext'
+import './globals.css';
+import { ProductsProvider } from './context/ProductsContext';
 
 export const metadata = {
   title: 'CamsterBrainrot',
   description: 'Official Brainrot Store',
-}
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -29,5 +29,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </ProductsProvider>
       </body>
     </html>
-  )
+  );
 }

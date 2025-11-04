@@ -16,9 +16,6 @@ export default function Home() {
             <p className="text-gray-600 mb-2">${product.price.toFixed(2)}</p>
             <p className="text-sm text-gray-500 mb-2">Traits: {product.trait}</p>
             <p className="text-sm text-gray-500 mb-4">Stock: {product.stock}</p>
-            <button className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
-              Add to Cart
-            </button>
           </div>
         ))}
       </div>
