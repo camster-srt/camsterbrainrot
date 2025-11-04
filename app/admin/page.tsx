@@ -13,19 +13,8 @@ export default function Admin() {
 
   const handleAddProduct = () => {
     if (!name || !image) return alert('Please provide name and image URL')
-    addProduct({
-      id: products.length + 1,
-      name,
-      trait,
-      price,
-      stock,
-      image
-    })
-    setName('')
-    setTrait('')
-    setPrice(0)
-    setStock(0)
-    setImage('')
+    addProduct({ id: products.length + 1, name, trait, price, stock, image })
+    setName(''); setTrait(''); setPrice(0); setStock(0); setImage('')
   }
 
   return (

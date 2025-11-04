@@ -1,6 +1,6 @@
 'use client'
 
-import { useProducts } from './context/productscontext'
+import { useProducts } from './context/ProductsContext'
 
 export default function Home() {
   const { products } = useProducts()
