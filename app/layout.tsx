@@ -1,10 +1,7 @@
+'use client'
+
 import './globals.css'
 import { ProductsProvider } from './context/ProductsContext'
-
-export const metadata = {
-  title: 'CamsterBrainrot',
-  description: 'Official Brainrot Store',
-}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -21,7 +18,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </header>
 
         <main className="max-w-7xl mx-auto p-8">
-          {/* Wrap children in a client component */}
           <ProductsProvider>{children}</ProductsProvider>
         </main>
 

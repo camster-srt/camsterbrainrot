@@ -1,8 +1,8 @@
-'use client'
+use client'
 
-import React, { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, ReactNode } from 'react'
 
-interface Product {
+export interface Product {
   id: number
   name: string
   trait: string
@@ -25,9 +25,7 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
     { id: 3, name: 'Esok Sekolah', trait: 'N/A', price: 12.5, stock: 1, image: '/images/brainrot3.png' },
   ])
 
-  const addProduct = (product: Product) => {
-    setProducts(prev => [...prev, product])
-  }
+  const addProduct = (product: Product) => setProducts(prev => [...prev, product])
 
   return (
     <ProductsContext.Provider value={{ products, addProduct }}>
@@ -38,8 +36,6 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
 
 export const useProducts = () => {
   const context = useContext(ProductsContext)
-  if (!context) {
-    throw new Error('useProducts must be used within a ProductsProvider')
-  }
+  if (!context) throw new Error('useProducts must be used within a ProductsProvider')
   return context
 }
