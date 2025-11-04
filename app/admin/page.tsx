@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useProducts } from '../context/ProductsContext'
 
 export default function Admin() {
-  const { products, addProduct } = useProducts()
+  const { products, addProduct, deleteProduct } = useProducts()
   const [name, setName] = useState('')
   const [trait, setTrait] = useState('')
   const [price, setPrice] = useState<number>(0)
@@ -13,7 +13,7 @@ export default function Admin() {
 
   const handleAddProduct = () => {
     if (!name || !image) return alert('Please provide name and image URL')
-    addProduct({ id: products.length + 1, name, trait, price, stock, image })
+    addProduct({ id: Date.now(), name, trait, price, stock, image })
     setName(''); setTrait(''); setPrice(0); setStock(0); setImage('')
   }
 
@@ -38,8 +38,9 @@ export default function Admin() {
       <div className="mt-8 max-w-lg mx-auto">
         <h2 className="text-2xl font-semibold mb-4">Current Products</h2>
         {products.map(p => (
-          <div key={p.id} className="p-4 mb-2 bg-white rounded shadow">
+          <div key={p.id} className="p-4 mb-2 bg-white rounded shadow flex justify-between items-center">
             <p><strong>{p.name}</strong> - ${p.price.toFixed(2)} - Stock: {p.stock}</p>
+            <button className="text-red-600 font-bold text-xl" onClick={() => deleteProduct(p.id)}>🗑️</button>
           </div>
         ))}
       </div>
