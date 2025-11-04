@@ -1,52 +1,46 @@
 'use client'
 
 import { useState } from 'react'
-
-interface Product {
-  id: number
-  name: string
-  stock: number
-}
+import { useProducts } from '../context/ProductsContext'
 
 export default function Admin() {
-  const [products, setProducts] = useState<Product[]>([
-    { id: 1, name: 'Brainrot Alpha', stock: 10 },
-    { id: 2, name: 'Brainrot Beta', stock: 5 },
-    { id: 3, name: 'Brainrot Gamma', stock: 2 },
-  ])
+  const { addProduct } = useProducts()
+  const [name, setName] = useState('')
+  const [trait, setTrait] = useState('')
+  const [price, setPrice] = useState('')
+  const [stock, setStock] = useState('')
+  const [image, setImage] = useState('')
 
-  const updateStock = (id: number, newStock: number) => {
-    setProducts(prev => prev.map(p => p.id === id ? { ...p, stock: newStock } : p))
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    addProduct({
+      name,
+      trait,
+      price: parseFloat(price),
+      stock: parseInt(stock),
+      image,
+    })
+    setName('')
+    setTrait('')
+    setPrice('')
+    setStock('')
+    setImage('')
   }
 
   return (
-    <main className="min-h-screen p-8 bg-gray-100">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Admin Panel</h1>
-      <table className="min-w-full bg-white rounded shadow">
-        <thead>
-          <tr>
-            <th className="py-2 px-4 border-b text-left">Product</th>
-            <th className="py-2 px-4 border-b text-left">Stock</th>
-            <th className="py-2 px-4 border-b text-left">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map(p => (
-            <tr key={p.id}>
-              <td className="py-2 px-4 border-b">{p.name}</td>
-              <td className="py-2 px-4 border-b">{p.stock}</td>
-              <td className="py-2 px-4 border-b">
-                <button
-                  className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600"
-                  onClick={() => updateStock(p.id, p.stock + 1)}
-                >
-                  +1 Stock
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </main>
+    <div className="max-w-2xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6">Admin Panel</h1>
+
+      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow space-y-4">
+        <input type="text" placeholder="Product Name" value={name} onChange={e => setName(e.target.value)} className="w-full p-2 border rounded" required />
+        <input type="text" placeholder="Traits" value={trait} onChange={e => setTrait(e.target.value)} className="w-full p-2 border rounded" required />
+        <input type="number" placeholder="Price" value={price} onChange={e => setPrice(e.target.value)} className="w-full p-2 border rounded" required />
+        <input type="number" placeholder="Stock" value={stock} onChange={e => setStock(e.target.value)} className="w-full p-2 border rounded" required />
+        <input type="text" placeholder="Image URL" value={image} onChange={e => setImage(e.target.value)} className="w-full p-2 border rounded" required />
+        <button type="submit" className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition">
+          Add Brainrot
+        </button>
+      </form>
+    </div>
   )
 }
