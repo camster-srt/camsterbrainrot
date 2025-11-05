@@ -1,10 +1,11 @@
-// Initialize Firebase and Firestore
+// app/firebaseConfig.ts
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCrCgWXV40mFZq2ZI2ILwz0gxuxl3wGNv8",
-  authDomain: "camsterbrainrot.firebaseapp.com",
+  authDomain: "camsterbrainrot.firebaseapp.com", // must match your project
   projectId: "camsterbrainrot",
   storageBucket: "camsterbrainrot.appspot.com",
   messagingSenderId: "586964433819",
@@ -14,3 +15,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
+export const auth = getAuth(app);
+export const provider = new GoogleAuthProvider();
+export { app };

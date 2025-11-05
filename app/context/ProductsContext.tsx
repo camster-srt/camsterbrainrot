@@ -2,10 +2,10 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { db } from '../firebaseConfig'
-import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore"
+import { collection, getDocs, addDoc, deleteDoc, doc, onSnapshot } from 'firebase/firestore'
 
-export interface Product {
-  id?: string
+interface Product {
+  id: string
   name: string
   trait: string
   price: number
@@ -15,38 +15,45 @@ export interface Product {
 
 interface ProductsContextType {
   products: Product[]
-  addProduct: (product: Product) => Promise<void>
+  addProduct: (product: Omit<Product, 'id'>) => Promise<void>
   deleteProduct: (id: string) => Promise<void>
 }
 
 const ProductsContext = createContext<ProductsContextType>({
   products: [],
   addProduct: async () => {},
-  deleteProduct: async () => {},
+  deleteProduct: async () => {}
 })
 
-export const ProductsProvider = ({ children }: { children: ReactNode }) => {
+export function ProductsProvider({ children }: { children: ReactNode }) {
   const [products, setProducts] = useState<Product[]>([])
 
-  // Fetch products from Firestore
-  const fetchProducts = async () => {
-    const snapshot = await getDocs(collection(db, 'products'))
-    const productsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Product[]
-    setProducts(productsData)
-  }
-
   useEffect(() => {
-    fetchProducts()
+    // Real-time listener for the 'products' collection
+    const unsubscribe = onSnapshot(collection(db, 'products'), (snapshot) => {
+      const items = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Product[]
+      setProducts(items)
+    })
+    return () => unsubscribe()
   }, [])
 
-  const addProduct = async (product: Product) => {
-    const docRef = await addDoc(collection(db, 'products'), product)
-    setProducts(prev => [...prev, { id: docRef.id, ...product }])
+  const addProduct = async (product: Omit<Product, 'id'>) => {
+    try {
+      await addDoc(collection(db, 'products'), product)
+    } catch (error) {
+      console.error('Error adding product:', error)
+    }
   }
 
   const deleteProduct = async (id: string) => {
-    await deleteDoc(doc(db, 'products', id))
-    setProducts(prev => prev.filter(p => p.id !== id))
+    try {
+      await deleteDoc(doc(db, 'products', id))
+    } catch (error) {
+      console.error('Error deleting product:', error)
+    }
   }
 
   return (
