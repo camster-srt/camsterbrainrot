@@ -6,6 +6,11 @@ import { useProducts } from '../context/ProductsContext'
 export default function Admin() {
   const { products, addProduct, deleteProduct } = useProducts()
 
+  const [enteredPassword, setEnteredPassword] = useState('')
+  const [authenticated, setAuthenticated] = useState(false)
+
+  const correctPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD
+
   const [name, setName] = useState('')
   const [trait, setTrait] = useState('')
   const [price, setPrice] = useState<number>(0)
@@ -15,21 +20,50 @@ export default function Admin() {
   const handleAddProduct = async () => {
     if (!name || !image) return alert('Please provide name and image URL')
 
-    // Add product via context (Firestore)
     await addProduct({
       name,
       trait,
       price,
       stock,
-      image
+      image,
     })
 
-    // Clear input fields
     setName('')
     setTrait('')
     setPrice(0)
     setStock(0)
     setImage('')
+  }
+
+  const handleLogin = () => {
+    if (enteredPassword === process.env.NEXT_PUBLIC_ADMIN_PASSWORD || enteredPassword === process.env.ADMIN_PASSWORD) {
+      setAuthenticated(true)
+    } else {
+      alert('Incorrect password')
+    }
+  }
+
+  if (!authenticated) {
+    return (
+      <main className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+        <div className="bg-white p-6 rounded-xl shadow-md w-80">
+          <h2 className="text-2xl font-semibold mb-4 text-center">Admin Login</h2>
+          <input
+            type="password"
+            className="w-full p-2 mb-4 border rounded"
+            placeholder="Enter Admin Password"
+            value={enteredPassword}
+            onChange={(e) => setEnteredPassword(e.target.value)}
+          />
+          <button
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+            onClick={handleLogin}
+          >
+            Login
+          </button>
+        </div>
+      </main>
+    )
   }
 
   return (
