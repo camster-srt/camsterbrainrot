@@ -1,7 +1,7 @@
 // app/layout.tsx
 import './globals.css';
 import { ProductsProvider } from './context/ProductsContext';
-import AuthWrapper from './components/AuthWrapper'; // client-side component
+import AuthWrapper from './components/AuthWrapper';
 
 export const metadata = {
   title: 'CamsterBrainrot',
