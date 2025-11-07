@@ -2,17 +2,25 @@
 'use client';
 
 import { ReactNode, useEffect, useState } from 'react';
-import { auth, provider } from '../firebaseConfig';
-import { onAuthStateChanged, signInWithPopup, signOut, User } from 'firebase/auth';
+import { auth } from '../firebaseConfig';
+import {
+  onAuthStateChanged,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  setPersistence,
+  browserSessionPersistence
+} from 'firebase/auth';
 
 interface AuthWrapperProps {
   children: ReactNode;
-  adminOnly?: boolean; // Restrict access to admin if true
+  adminOnly?: boolean;
 }
 
 export default function AuthWrapper({ children, adminOnly = false }: AuthWrapperProps) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [loginLoading, setLoginLoading] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -23,30 +31,28 @@ export default function AuthWrapper({ children, adminOnly = false }: AuthWrapper
   }, []);
 
   const login = async () => {
+    if (loginLoading) return;
+    setLoginLoading(true);
+    const provider = new GoogleAuthProvider();
     try {
+      await setPersistence(auth, browserSessionPersistence); // session-only
       await signInWithPopup(auth, provider);
-    } catch (error) {
-      console.error('Login failed', error);
+    } catch (error: any) {
+      console.error('Login error:', error);
+    } finally {
+      setLoginLoading(false);
     }
   };
 
   const logout = async () => {
-    try {
-      await signOut(auth);
-      setUser(null);
-    } catch (error) {
-      console.error('Logout failed', error);
-    }
+    await signOut(auth);
+    setUser(null);
   };
 
-  const isAdmin = user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+  const isAdmin = user?.email === 'cameronshiu@gmail.com';
 
-  // While checking auth state
-  if (loading) {
-    return <p className="text-center mt-20 text-gray-600">Loading...</p>;
-  }
+  if (loading) return <p className="text-center mt-20 text-gray-600">Loading...</p>;
 
-  // If not logged in
   if (!user) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -54,13 +60,12 @@ export default function AuthWrapper({ children, adminOnly = false }: AuthWrapper
           onClick={login}
           className="bg-blue-600 text-white px-6 py-3 rounded-lg text-lg hover:bg-blue-700 transition"
         >
-          Sign in with Google
+          {loginLoading ? 'Signing in...' : 'Sign in with Google'}
         </button>
       </div>
     );
   }
 
-  // If adminOnly page but user is not admin
   if (adminOnly && !isAdmin) {
     return (
       <div className="flex flex-col justify-center items-center h-screen text-center">
@@ -75,6 +80,17 @@ export default function AuthWrapper({ children, adminOnly = false }: AuthWrapper
     );
   }
 
-  // User is logged in (and admin if adminOnly)
-  return <>{children}</>;
+  return (
+    <div>
+      <div className="absolute top-4 left-4">
+        <button
+          onClick={logout}
+          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+        >
+          Sign Out
+        </button>
+      </div>
+      {children}
+    </div>
+  );
 }
