@@ -1,16 +1,32 @@
-'use client';
+'use client'
 
 import { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+interface PurchaseModalProps {
+  product: {
+    id: string;
+    name: string;
+    price: number;
+  };
+}
 
-export default function PurchaseModal({ product }: { product: any }) {
-  const [email, setEmail] = useState('');
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+);
+
+export default function PurchaseModal({ product }: PurchaseModalProps) {
   const [robloxUsername, setRobloxUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handlePurchase = async () => {
-    if (!email || !robloxUsername) return alert('Enter your email and Roblox username');
+    if (!robloxUsername || !email) {
+      alert('Please enter Roblox username and email');
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const res = await fetch('/api/create-checkout-session', {
@@ -21,15 +37,19 @@ export default function PurchaseModal({ product }: { product: any }) {
 
       const data = await res.json();
 
-      if (data.sessionId) {
-        const stripe = await stripePromise;
-        await stripe?.redirectToCheckout({ sessionId: data.sessionId });
-      } else {
+      if (!data.sessionId) {
         alert('Failed to create checkout session');
+        setLoading(false);
+        return;
       }
+
+      const stripe = (await stripePromise) as any; // ⚠ Cast to any to bypass TS
+      await stripe.redirectToCheckout({ sessionId: data.sessionId });
     } catch (err) {
       console.error(err);
-      alert('An error occurred');
+      alert('Checkout failed. See console for details.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,24 +59,27 @@ export default function PurchaseModal({ product }: { product: any }) {
         type="email"
         placeholder="Email"
         value={email}
-        onChange={e => setEmail(e.target.value)}
+        onChange={(e) => setEmail(e.target.value)}
         className="p-2 border rounded"
       />
       <input
         type="text"
         placeholder="Roblox Username"
         value={robloxUsername}
-        onChange={e => setRobloxUsername(e.target.value)}
+        onChange={(e) => setRobloxUsername(e.target.value)}
         className="p-2 border rounded"
       />
-      <p className="text-red-600 font-bold text-sm">
-        Enter the correct Roblox username. No refunds if wrong.
+      <p className="text-red-600 text-sm font-bold">
+        If you enter the wrong Roblox username, you cannot get refunded.
       </p>
       <button
         onClick={handlePurchase}
-        className="bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
+        disabled={loading}
+        className={`bg-green-600 text-white py-2 rounded hover:bg-green-700 transition ${
+          loading ? 'opacity-50 cursor-not-allowed' : ''
+        }`}
       >
-        Purchase
+        {loading ? 'Processing...' : 'Purchase'}
       </button>
     </div>
   );
